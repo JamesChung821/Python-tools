@@ -24,7 +24,8 @@ FILE_TYPE = '.prj'  # ".prj" if you want to merge the scans; ".txt" if you want 
 INPUT_PATH = r'D:\Research data\Conversion coating\202203\20211029 BMM\merge_test'
 
 # Merge Constant
-IF_NOR = False   # Do normalization
+IF_NOR = True   # Do normalization
+ADD_STD = True     # Add plus and minus standard lines
 SHOW_DATA_INFORMATION = False   # List athena parameters, such as atomic symbol, edge, label, etc.
 
 # Plot Constant
@@ -187,10 +188,18 @@ def merge_scan(file_prj, new_merge_project):
     if IF_NOR:  # Do normalization
         pre_edge(merges.energy, merges.mu, group=merges)
         plt.plot(merges.energy, merges.norm, label=f'{first_scan_information.label[:-4]}_merged')
+        if ADD_STD:
+            plt.plot(merges.energy, merges.norm + merges.mu_std * merges.norm / merges.mu, '-',
+                     label=f'{first_scan_information.label[:-4]}_merged+std')
+            plt.plot(merges.energy, merges.norm - merges.mu_std * merges.norm / merges.mu, '-',
+                     label=f'{first_scan_information.label[:-4]}_merged-std')
     else:
         plt.plot(merges.energy, merges.mu, label=f'{first_scan_information.label[:-4]}_merged')
-        # plt.plot(merges.energy, merges.mu + merges.mu_std, '--', label=f'{first_scan_information.label[:-4]}_merged+std')
-        # plt.plot(merges.energy, merges.mu - merges.mu_std, '--', label=f'{first_scan_information.label[:-4]}_merged-std')
+        if ADD_STD:
+            plt.plot(merges.energy, merges.mu + merges.mu_std, '-',
+                     label=f'{first_scan_information.label[:-4]}_merged+std')
+            plt.plot(merges.energy, merges.mu - merges.mu_std, '-',
+                     label=f'{first_scan_information.label[:-4]}_merged-std')
     if SHOW_DATA_INFORMATION:
         print("\n==============================")
         print(f'Merged parameters in {first_scan_information.label[:-4]}_merged')
