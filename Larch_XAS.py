@@ -174,6 +174,7 @@ def merge_scan(file_prj, new_merge_project):
             print(scan_attribute, type(getattr(first_scan_information, scan_attribute)))
 
     # Plot scans
+    fig, ax = plt.subplots()
     for index, scan in enumerate(scans_grouplist):
         if IF_NOR:  # Do normalization
             pre_edge(scan.energy, scan.mu, group=scan)
@@ -188,6 +189,8 @@ def merge_scan(file_prj, new_merge_project):
         plt.plot(merges.energy, merges.norm, label=f'{first_scan_information.label[:-4]}_merged')
     else:
         plt.plot(merges.energy, merges.mu, label=f'{first_scan_information.label[:-4]}_merged')
+        # plt.plot(merges.energy, merges.mu + merges.mu_std, '--', label=f'{first_scan_information.label[:-4]}_merged+std')
+        # plt.plot(merges.energy, merges.mu - merges.mu_std, '--', label=f'{first_scan_information.label[:-4]}_merged-std')
     if SHOW_DATA_INFORMATION:
         print("\n==============================")
         print(f'Merged parameters in {first_scan_information.label[:-4]}_merged')
@@ -200,6 +203,7 @@ def merge_scan(file_prj, new_merge_project):
     new_merge_project.add_group(merges, scan_name)
 
     # Figure information
+    ax.set_xlim((merges.energy.min() // 1 + 1, merges.energy.max() // 1 - 1))
     plt.xlabel('$\mathregular{Energy\ (eV)}$', fontsize=12)
     plt.ylabel('$\mathregular{Normalized\ \mu(E)}$', fontsize=12)
     plt.title(f'{first_scan_information.atsym} {first_scan_information.edge}-edge')
