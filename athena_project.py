@@ -627,6 +627,7 @@ class AthenaProject(object):
         from larch.xafs import pre_edge
 
         x = athena_array(group, 'energy')
+
         yname = None
         for _name in ('mu', 'mutrans', 'mufluor'):
             if hasattr(group, _name):
