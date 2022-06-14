@@ -7,26 +7,24 @@ Github source: https://github.com/xraypy/xraylarch
 Color palettes for Python: https://jiffyclub.github.io/palettable/#palette-interface
 """
 
-
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 from larch.xafs import pre_edge
 from larch.io import read_ascii, write_ascii, merge_groups, read_athena, create_athena, write_group
 import athena_project
-from athena_project import AthenaProject
 import palettable.colorbrewer.diverging as pld
 from collections import defaultdict
 
 # Constant
-FILE_TYPE = ''  # ".prj" for merging fluorescence scans; ".txt" for plotting scans; '' for merging transmission scans
-INPUT_PATH = r'D:\Research data\SSID\202206\20220610 BMM'
-
+FILE_TYPE = ''  # ".prj" for merging fluorescence scans; '' for merging transmission scans; ".txt" for plotting scans
+# INPUT_PATH = r'D:\Research data\SSID\202206\20220610 BMM'
+INPUT_PATH = r'D:\Research data\SSID\202206\20220610 BMM\MnO2 test'
 
 # Merged Constant
-SKIP_SCANS = []     # [] if scans are good or adding scans you want to exclude
-IF_NOR = False   # Do normalization
-ADD_DEV = False     # Add plus and minus standard deviation lines
+SKIP_SCANS = ['MnO2_45_16C_Charge_Mn_001', 'MnO2_132_7C_Charge_Mn_001', 'MnO2_132_7C_Charge_Mn_002', 'MnO2_132_7C_Charge_Mn_003', 'MnO2_132_7C_Charge_Mn_004', 'MnO2_132_7C_Charge_Mn_005']     # [] if scans are good or just add scans you want to exclude
+IF_NOR = False   # Do normalization for fluorescence scans
+ADD_DEV = False     # Add plus and minus standard deviation lines for fluorescence scans
 SHOW_DATA_INFORMATION = False   # List athena parameters, such as atomic symbol, edge, label, etc.
 
 # Plot Constant
@@ -38,7 +36,7 @@ FILE_INDEX = 1  # Which file in file list you want to plot
 SAMPLE_LIST = []     # [] for default or [1, 7, 5, 3] for a index list you want to plot
 STANDARD_LIST = []      # [] if no standards in the SAMPLE_LIST or [5, 3] in the SAMPLE_LIST become dash lines
 FIGURE_SIZE = (6.4, 4.8)  # Cheng-hung uses (6, 7.5), but the default is (6.4, 4.8)
-SAMPLE_LABEL = []  # [] for default or adding a specific name list
+SAMPLE_LABEL = []  # [] for default or add a specific name list
 PALETTE = pld.Spectral_4_r  # _r if you want to reverse the color sequence
 CMAP = PALETTE.mpl_colormap     # .mpl_colormap attribute is a continuous, interpolated map
 OFFSET = 0  # Value you want to add to an offset for each curve.
@@ -72,7 +70,7 @@ def main():
 
         read_transmission(files)
 
-        files = Path(INPUT_PATH).glob(f'*{FILE_TYPE}')
+        files = Path(INPUT_PATH).glob(f'*{FILE_TYPE}')  # Import input path to read prj files which have been processed
         for index, file_prj in enumerate(files):
             if '.prj' in file_prj.name and 'Created' not in file_prj.name:
                 group = read_ascii(file_prj)
@@ -88,7 +86,7 @@ def main():
 
         new_merge_project.save(f'{Path(INPUT_PATH)}/Created_transmission_group.prj')
         print('\n=================================================================================')
-        print(f'Save merge project into ---> Created_Created_transmission.prj')
+        print(f'Save merge project into ---> Created_transmission_group.prj')
         print('=================================================================================')
 
 
@@ -252,9 +250,13 @@ def merge_scan(file_prj, new_merge_project):
 
 
 def read_transmission(files):
+    """
+    :param files: txt file, a txt file from the current folder
+    :return: None
+    """
     scan_dictionary = defaultdict(list)
     print("==============================")
-    print('Files')
+    print('Index Files')
     print("------------------------------")
 
     # Create scan dictionary and each item contains energy, scan1, scan2, scan3, etc...
@@ -282,7 +284,8 @@ def read_transmission(files):
             if f'{scanname[:-4]}_energy_mu' not in scan_dictionary:
                 scan_dictionary[f'{scanname[:-4]}_energy_mu'] = []
                 scan_dictionary[f'{scanname[:-4]}_energy_mu'].append(scan.energy)
-            if f'{scanname[:-4]}_00{scanname[-1]}' not in SKIP_SCANS:
+                scan_dictionary[f'{scanname[:-4]}_energy_mu'].append(np.log(scan.it / scan.ir))
+            if f'{scanname[:-4]}_00{int(scanname[-2:]) // 10 * 10 + int(scanname[-2:]) % 10}' not in SKIP_SCANS:
                 scan_dictionary[f'{scanname[:-4]}_energy_mu'].append(np.log(scan.i0 / scan.it))
 
     # Append merged data, so each item will contain energy, scan1, scan2, scan3, etc... and a merged scan.
@@ -292,27 +295,32 @@ def read_transmission(files):
 
     for sample_data in scan_dictionary:
         fig, ax = plt.subplots(1, 1, figsize=FIGURE_SIZE)   # Each figure should have its own format
-        merge = np.mean(scan_dictionary[sample_data][1:], axis=0)   # Do the merge
+        merge = np.mean(scan_dictionary[sample_data][2:], axis=0)   # <------------------------------- Merged array
         scan_dictionary[sample_data].append(merge)
-        energy = scan_dictionary[sample_data][0]
+        energy = scan_dictionary[sample_data][0]        # <------------------------------------------- Energy array
+        reference = scan_dictionary[sample_data][1]     # <------------------------------------------- Reference array
 
         write_ascii("{}/{}_merged.prj".format(Path(INPUT_PATH), f'{sample_data[:-10]}'), energy, merge,
                     label='energy mu',
                     header=['energy', 'mu'])
+        write_ascii("{}/{}_reference.prj".format(Path(INPUT_PATH), f'{sample_data[:-10]}'), energy, reference,
+                    label='energy mu',
+                    header=['energy', 'mu'])
 
         # Plot
+        skip_times = 0
         for mu_index in range(1, len(scan_dictionary[sample_data])):
             mu = scan_dictionary[sample_data][mu_index]
             # Label
             if mu_index == len(scan_dictionary[sample_data])-1:
                 label = f'{sample_data[:-10]}_merged'
             else:
-                if f'{sample_data[:-10]}_00{mu_index}' in SKIP_SCANS:
-                    label = f'{sample_data[:-10]}_00{mu_index + 1}'
-                else:
-                    label = f'{sample_data[:-10]}_00{mu_index}'
-            print(label)
-            plt.plot(energy, mu, label=label)
+                if f'{sample_data[:-10]}_00{mu_index - 1 + skip_times}' in SKIP_SCANS:
+                    skip_times += 1
+                label = f'{sample_data[:-10]}_00{mu_index - 1 + skip_times}'
+            if mu_index > 1:
+                print(label)
+                plt.plot(energy, mu, label=label)
 
         # Plotting format
         if ENERGY_RANGE == ():
