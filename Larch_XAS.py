@@ -19,8 +19,8 @@ from collections import defaultdict
 from pprint import pprint
 
 # Constant
-FILE_TYPE = '.dat'  # ".prj" for merging fluorescence scans; '' for merging transmission scans; ".txt" for plotting scans
-INPUT_PATH = r'D:\Research data\SSID\202206\20220610 BMM\test'
+FILE_TYPE = '.dat'  # ".prj" for merging fluorescence scans; '', '.dat' for merging transmission scans; ".txt" for plotting scans
+INPUT_PATH = r'D:\Research data\SSID\202208'
 
 # Merged Constant
 SKIP_SCANS = ['MnO2_45_16C_Charge_Mn_001']     # [] if scans are good or just add scans you want to exclude
@@ -470,12 +470,7 @@ def calibrate_energy(files):
                 print('')
 
         # Replace special characters because they might cause error
-        # filename = None
         filename = f'{data.label}'.replace('-', '_').replace('(', '').replace(')', '')
-        # if FILE_TYPE == '':
-        #     filename = f'{data.label}'.replace('-', '_').replace('(', '').replace(')', '')
-        # elif FILE_TYPE == '.prj':
-        #     filename = f'{data.label}'.replace('-', '_').replace('(', '').replace(')', '')
         new_merge_project.add_group(data, filename)
 
     new_merge_project.save(f'{Path(INPUT_PATH)}/Created_group_with_calibration.prj')
