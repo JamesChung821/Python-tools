@@ -1,4 +1,4 @@
 seaborn
 plotly
 palettable
-streamlit-theme
+streamlit_theme
