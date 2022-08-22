@@ -3,5 +3,4 @@ plotly
 palettable
 streamlit_theme
 sklearn
-collections
 random
