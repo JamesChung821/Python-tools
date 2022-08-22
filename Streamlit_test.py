@@ -11,6 +11,8 @@ import random
 from collections import defaultdict
 from sklearn import preprocessing, model_selection, tree, decomposition, ensemble, cluster, neighbors
 from PIL import Image
+import requests
+from io import BytesIO
 
 # Constant
 PALETTE = pld.Spectral_4_r  # _r if you want to reverse the color sequence
@@ -88,13 +90,21 @@ def main():
         print('Best data point:', (distance_array.argmin(), np.min(distance_array)))
         print(label_data[distance_array.argmin()])
         st.subheader('The Best Restaurant for you')
-        image = ''
+        image_from_internet = ''
         if f'{label_data[distance_array.argmin()]}' == 'Shake Shack':
-            image = Image.open("D:\Research data\SSID\Advanced Computer Python\Python-tools\Shack Shack.png")
+            image_from_internet = requests.get(
+                'https://play-lh.googleusercontent.com/WQsoRg7epNpgJRrEMkkLJqheDekpJfvuDX5UFuk3Et67i5472dc92XfQu_hc1bIi6pI')
+            # image = Image.open("D:\Research data\SSID\Advanced Computer Python\Python-tools\Shack Shack.png")
         elif f'{label_data[distance_array.argmin()]}' == 'Burger King':
-            image = Image.open("D:\Research data\SSID\Advanced Computer Python\Python-tools\Burger King.png")
+            image_from_internet = requests.get(
+                'https://logos-world.net/wp-content/uploads/2020/05/Burger-King-Logo.png')
+            # image = Image.open("D:\Research data\SSID\Advanced Computer Python\Python-tools\Burger King.png")
         elif f'{label_data[distance_array.argmin()]}' == "McDonald's":
-            image = Image.open("D:\Research data\SSID\Advanced Computer Python\Python-tools\McDonalds.png")
+            image_from_internet = requests.get(
+                'https://1000logos.net/wp-content/uploads/2017/03/McDonalds-logo.png')
+            # image = Image.open("D:\Research data\SSID\Advanced Computer Python\Python-tools\McDonalds.png")
+        image_converted = BytesIO(image_from_internet.content)
+        image = Image.open(image_converted)
         st.image(image, caption=f'{label_data[distance_array.argmin()]}')
 
     st.subheader('Data Visualization with respect to Survived')
