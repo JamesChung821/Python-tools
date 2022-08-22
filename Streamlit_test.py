@@ -7,40 +7,78 @@ import matplotlib.pyplot as plt
 import palettable.colorbrewer.diverging as pld
 import streamlit_theme as stt
 import time
+import random
+from collections import defaultdict
+from sklearn import preprocessing, model_selection, tree, decomposition, ensemble, cluster, neighbors
 
 # Constant
 PALETTE = pld.Spectral_4_r  # _r if you want to reverse the color sequence
 CMAP = PALETTE.mpl_colormap     # .mpl_colormap attribute is a continuous, interpolated map
-# [theme]
-primaryColor="#F63366"
-backgroundColor="#FFFFFF"
-secondaryBackgroundColor="#F0F2F6"
-textColor="#262730"
-font="sans serif"
+
+# Pre-step 2: Decide the model parameters
+PCA = [2] 	# Principle Component Analysis
+DEGREES = [1]		# PolynomialFeatures
+DATA_SIZE = 800
+N_CLUSTERS = DATA_SIZE//100
+VISUALIZATION = False
 
 
 def main():
-    df = sns.load_dataset('titanic')
+    # df = sns.load_dataset('titanic')
+    df = synthetic_dataset()
     stt.set_theme({'primary': '#1b3388'})    # Useless QQ
-    st.title('Titanic Dashboard')
-    st.subheader('Dataset')
+    st.title('Restaurant AI Selector')
+    st.subheader('Original Dataset')
     st.dataframe(df)
 
-    st.subheader('Data Numerical Statistic')
-    st.dataframe(df.describe())
+    st.subheader('Train Dataset')
+    # st.dataframe(df.describe())
+    train_data, label_data = data_preprocess(synthetic_dataset(), mode='Train')  # Extract data and labels
+    column_dimension = train_data.shape[1]
+    st.dataframe(train_data)
+
+    st.subheader("User's Input")
+    test_data = user_input_feature()
+    st.dataframe(test_data)
+
+    st.subheader("Test Dataset")
+    test_data = data_preprocess(test_data, mode='Test')
+    st.dataframe(test_data)
+
+    # standardizier = preprocessing.StandardScaler()  # Call a standardization object
+    # x_train = standardizier.fit_transform(train_data)  # Do the standardization
+    # x_test = standardizier.transform(test_data)  # Do 'transform' only on testing data
+    #
+    # pca = decomposition.PCA(n_components=column_dimension)  # Data compression
+    # x_train_pca = pca.fit_transform(x_train)
+    # x_test_pca = pca.transform(x_test)
+    # k_means = cluster.KMeans(n_clusters=N_CLUSTERS)  # <-------------------------------- number of clusters
+    # k_means.fit(x_train_pca)  # No labels
+    # # print('Cluster center data:', k_means.cluster_centers_)
+    # print('====================================')
+    # print('Cluster label')
+    # print(k_means.labels_)
+    # # print(k_means.get_params())
+    #
+    # predict_label = k_means.predict(x_test_pca)
+    # print('====================================')
+    # print('Predict label')
+    # print(predict_label)
+    # print('Data format of each data')
+    # print(x_test_pca[0])
 
     st.subheader('Data Visualization with respect to Survived')
-    left_column, right_column = st.columns(2)
-    with left_column:
-        'Numerical Plot'
-        num_feat = st.selectbox('Select Numerical Feature', df.select_dtypes('number').columns)
-        fig = px.histogram(df, x=num_feat, color='survived')
-        st.plotly_chart(fig, use_container_width=True)
-    with right_column:
-        'Categorical column'
-        cat_feat = st.selectbox('Select Categorical Feature', df.select_dtypes(exclude='number').columns)
-        fig = px.histogram(df, x=cat_feat, color='survived')
-        st.plotly_chart(fig, use_container_width=True)
+    # left_column, right_column = st.columns(2)
+    # with left_column:
+    #     'Numerical Plot'
+    #     num_feat = st.selectbox('Select Numerical Feature', df.select_dtypes('number').columns)
+    #     fig = px.histogram(df, x=num_feat, color='survived')
+    #     st.plotly_chart(fig, use_container_width=True)
+    # with right_column:
+    #     'Categorical column'
+    #     cat_feat = st.selectbox('Select Categorical Feature', df.select_dtypes(exclude='number').columns)
+    #     fig = px.histogram(df, x=cat_feat, color='survived')
+    #     st.plotly_chart(fig, use_container_width=True)
 
     st.subheader('Map nearby Stony Brook')
     number_of_points = 100
@@ -55,69 +93,7 @@ def main():
     st.subheader('My bar chart')
     bar_chart()
 
-    # Plotting Demo
-    progress_bar = st.sidebar.progress(0)
-    status_text = st.sidebar.empty()
-    last_rows = np.random.randn(1, 1)
-    chart = st.line_chart(last_rows)
 
-    for i in range(1, 101):
-        new_rows = last_rows[-1, :] + np.random.randn(5, 1).cumsum(axis=0)
-        status_text.text("%i%% Complete" % i)
-        chart.add_rows(new_rows)
-        progress_bar.progress(i)
-        last_rows = new_rows
-        time.sleep(0.05)
-
-    progress_bar.empty()
-
-    # Streamlit widgets automatically run the script from top to bottom. Since
-    # this button is not connected to any other logic, it just causes a plain
-    # rerun.
-    # st.button("Re-run")
-
-    # Animation Demo
-    # Interactive Streamlit elements, like these sliders, return their value.
-    # This gives you an extremely simple interaction model.
-    iterations = st.sidebar.slider("Level of detail", 2, 20, 10, 1)
-    separation = st.sidebar.slider("Separation", 0.7, 2.0, 0.7885)
-
-    # Non-interactive elements return a placeholder to their location
-    # in the app. Here we're storing progress_bar to update it later.
-    progress_bar = st.sidebar.progress(0)
-
-    # These two elements will be filled in later, so we create a placeholder
-    # for them using st.empty()
-    frame_text = st.sidebar.empty()
-    image = st.empty()
-
-    m, n, s = 960, 640, 400
-    x = np.linspace(-m / s, m / s, num=m).reshape((1, m))
-    y = np.linspace(-n / s, n / s, num=n).reshape((n, 1))
-
-    for frame_num, a in enumerate(np.linspace(0.0, 4 * np.pi, 100)):
-        # Here were setting value for these two elements.
-        progress_bar.progress(frame_num)
-        frame_text.text("Frame %i/100" % (frame_num + 1))
-
-        # Performing some fractal wizardry.
-        c = separation * np.exp(1j * a)
-        Z = np.tile(x, (n, 1)) + 1j * np.tile(y, (1, m))
-        C = np.full((n, m), c)
-        M = np.full((n, m), True, dtype=bool)
-        N = np.zeros((n, m))
-
-        for i in range(iterations):
-            Z[M] = Z[M] * Z[M] + C[M]
-            M[np.abs(Z) > 2] = False
-            N[M] = i
-
-        # Update the image placeholder by calling the image() function on it.
-        image.image(1.0 - (N / N.max()), use_column_width=True)
-
-    # We clear elements by calling empty on them.
-    progress_bar.empty()
-    frame_text.empty()
 
     # Streamlit widgets automatically run the script from top to bottom. Since
     # this button is not connected to any other logic, it just causes a plain
@@ -170,6 +146,116 @@ def bar_chart():
     plt.tight_layout()
     # plt.show()
     st.pyplot(fig)
+
+
+def synthetic_dataset():
+    data_size = DATA_SIZE
+    random.seed(0)
+    np.random.seed(0)
+    selection_dictionary = defaultdict()
+    age_list = ['11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '70+']
+    selection_dictionary['Age'] = pd.Series(random.choice(age_list) for _ in range(data_size))
+
+    gender_list = ['Male', 'Female', 'Third gender']
+    selection_dictionary['Gender'] = pd.Series(random.choice(gender_list) for _ in range(data_size))
+
+    goal_list = ['Date', 'Business', 'Friends', 'Family', 'Alone', 'Other']
+    selection_dictionary['Goal'] = pd.Series(random.choice(goal_list) for _ in range(data_size))
+
+    hours_list = ['Brunch', 'Lunch', 'Dinner', 'Anytime']
+    selection_dictionary['Hours'] = pd.Series(random.choice(hours_list) for _ in range(data_size))
+
+    distance_list = ['0-25', '26-50', '51-100', 'idc']
+    selection_dictionary['Distance'] = pd.Series(random.choice(distance_list) for _ in range(data_size))
+
+    restaurant_list = ['Burger King', 'Shake Shack', "McDonald's"]
+    selection_dictionary['Restaurant'] = pd.Series(random.choice(restaurant_list) for _ in range(data_size))
+
+    selection_dictionary['Extra column'] = pd.Series(list(np.random.randint(2, size=data_size)))
+
+    return pd.DataFrame(selection_dictionary)
+
+
+def data_preprocess(filename, mode='Train', training_data=None):
+    """
+    :param filename: str, the filename to be read into pandas
+    :param mode: str, indicating the mode we are using (either Train or Test)
+    :param training_data: DataFrame, a 2D data structure that looks like an excel worksheet
+                          (You will only use this when mode == 'Test')
+    :return: Tuple(data, labels), if the mode is 'Train'
+             data, if the mode is 'Test'
+    """
+    # data = pd.read_csv(filename)	 # Read the file in a dataframe form
+    data = filename
+    print('Data Head')
+    print(data.head(5))
+    # column_names = row_data.head(0).columns if you need all the column names
+    dataframe_format = pd.DataFrame()
+    if mode == 'Train':
+        column_names = ['Age', 'Gender', 'Goal', 'Hours', 'Distance', 'Restaurant']
+
+        encoding_list = ['Age', 'Gender', 'Goal', 'Hours', 'Distance']  # List for one-hot encoding
+        for feature in encoding_list:
+            data = one_hot_encoding(data, feature)
+        labels = data['Restaurant']  # Save labels
+        data.pop('Restaurant')
+        data.pop('Extra column')
+        dataframe_format = data
+        return data, labels
+
+    elif mode == 'Test':
+        column_names = ['Age', 'Gender', 'Goal', 'Hours', 'Distance']
+        column_dictionary = defaultdict(list)
+        column_dictionary['Age'] = ['11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '70+']
+        column_dictionary['Gender'] = ['Male', 'Female', 'Third gender']
+        column_dictionary['Goal'] = ['Date', 'Business', 'Friends', 'Family', 'Alone', 'Other']
+        column_dictionary['Hours'] = ['Brunch', 'Lunch', 'Dinner', 'Anytime']
+        column_dictionary['Distance'] = ['0-25', '26-50', '51-100', 'idc']
+        for column in column_dictionary:
+            for index in range(len(column_dictionary[column])):
+                data.loc[data[column] == column_dictionary[column][index], column] = index
+
+        dataframe_format = dataframe_format.drop(dataframe_format.index[1:]).replace(1, 0)
+        return data
+
+
+def one_hot_encoding(data, feature):
+    """
+    :param data: DataFrame, key is the column name, value is its data
+    :param feature: str, the column name of interest
+    :return data: DataFrame, remove the feature column and add its one-hot encoding features
+    """
+    data = pd.get_dummies(data, columns=[feature])
+    return data
+
+
+def user_input_feature():
+    # separation = st.sidebar.slider("Separation", 0.7, 2.0, 0.7885)
+    st.sidebar.title('User Preference')
+    age = st.sidebar.selectbox(
+        'In what age group are you?',
+        ('11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '70+'))
+    sex = st.sidebar.selectbox(
+        "What's your gender?",
+        ('Male', 'Female', 'Third gender'))
+    goal = st.sidebar.selectbox(
+        "What's your purpose?",
+        ('Date', 'Business', 'Friends', 'Family', 'Alone', 'Other'))
+    hours = st.sidebar.selectbox(
+        "What time?",
+        ['Brunch', 'Lunch', 'Dinner', 'Anytime'])
+    distance = st.sidebar.selectbox(
+        "How far from you (miles)?",
+        ('0-25', '26-50', '51-100', 'idc'))
+
+    feature_dictionary = defaultdict()
+    feature_dictionary['Age'] = pd.Series(age)
+    feature_dictionary['Gender'] = pd.Series(sex)
+    feature_dictionary['Goal'] = pd.Series(goal)
+    feature_dictionary['Hours'] = pd.Series(hours)
+    feature_dictionary['Distance'] = pd.Series(distance)
+
+    return pd.DataFrame(feature_dictionary)
 
 
 if __name__ == '__main__':
