@@ -45,7 +45,7 @@ pip install xraylarch
 ### Usage
 
 ---
-#### **Data processing**
+> Data processing
 #### FILE_TYPE =
 * '.prj': merge fluorescence scans (_e.g._ BNL NSLS-II BMM)
 * '': merge transmission scans (_e.g._ BNL NSLS-II BMM)
@@ -55,7 +55,7 @@ pip install xraylarch
 #### INPUT_PATH = 
 * Copy and paste data location
 
-#### **Data display (optional):**
+> Data display (optional)
 
 #### SKIP_SCANS = 
 * ['MnO2_45_16C_Charge_Mn_001']: add scan name you want to exclude
@@ -69,7 +69,8 @@ pip install xraylarch
 #### SHOW_DATA_INFORMATION = True / Flase
 * True / False: display Athena parameters, such as atomic symbol, edge, label, etc.
 
-#### **Plot spectrum (optional):**
+> Plot spectrum (optional)
+
 Download **larch_plot_config.ini**
 
 #### CONFIG_FILE = 
