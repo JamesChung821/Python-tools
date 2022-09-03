@@ -45,36 +45,36 @@ pip install xraylarch
 ### Usage
 
 ---
-> **Data processing**
-#### FILE_TYPE =
+#### Data processing
 
+FILE_TYPE =
 * '.prj': merge fluorescence scans (_e.g._ BNL NSLS-II BMM)
 * '': merge transmission scans (_e.g._ BNL NSLS-II BMM)
 * '.dat': merge transmission scans (_e.g._ BNL NSLS-II ISS)
 * '.txt': Plot scans file exported from Athena
 
-#### INPUT_PATH = 
+INPUT_PATH = 
 * Copy and paste data location
 
-> **Data display (optional)**
+#### Data display (optional)
 
-#### SKIP_SCANS = 
+SKIP_SCANS = 
 * ['MnO2_45_16C_Charge_Mn_001']: add scan name you want to exclude
 
-#### IF_NOR = 
+IF_NOR = 
 * True / False: do normalization for fluorescence scans
 
-#### ADD_DEV = True / Flase
+ADD_DEV =
 * True / False: add plus and minus standard deviation lines for fluorescence scans
 
-#### SHOW_DATA_INFORMATION = True / Flase
+SHOW_DATA_INFORMATION = 
 * True / False: display Athena parameters, such as atomic symbol, edge, label, etc.
 
-> **Plot spectrum (optional)**
+#### Plot spectrum (optional)
 
-Download **larch_plot_config.ini**
+* Download **larch_plot_config.ini**
 
-#### CONFIG_FILE = 
+CONFIG_FILE = 
 * Copy and paste the absolute directory of the config file for plotting .txt files
 
 ## CFNXRD2Jade.py
@@ -93,22 +93,22 @@ Download **larch_plot_config.ini**
 ### Usage
 
 ---
-#### INPUT_PATH = 
+INPUT_PATH = 
 * Copy and paste data location
 
-#### TIMESTAMP_FILE = 
+TIMESTAMP_FILE = 
 * Absolute directory or ' ' will return index as the color bar
 
-#### PLOT_LIST = 
+PLOT_LIST = 
 * [  ] for default or [1, 7, 5, 3] index list for the index sequence you desire
 
-#### PLOT_OFFSET = 
+PLOT_OFFSET = 
 * Number you want to add to an offset for each curve.
 
-#### PLOT_FIGURE = 
+PLOT_FIGURE = 
 * "True" if you want to show the plots
 
-#### SAVE_IMG = 
+SAVE_IMG = 
 * "True" if you want to save the converted file
 
 ## License
