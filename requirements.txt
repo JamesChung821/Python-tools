@@ -3,3 +3,7 @@ plotly
 palettable
 streamlit_theme
 sklearn
+yellowbrick
+streamlit_ace
+streamlit_echarts
+pprint
