@@ -44,19 +44,19 @@ def main():
     df = synthetic_dataset()
     st.dataframe(df)
 
-    st.subheader('Train Dataset')
+    # st.subheader('Train Dataset')
     # st.dataframe(df.describe())
     train_data, label_data, training_dataframe = data_preprocess(synthetic_dataset(), mode='Train')
-    st.dataframe(train_data)
+    # st.dataframe(train_data)
 
     st.subheader("User's Input")
     test_data = user_input_feature()
     # column_dimension = test_data.shape[1]
     st.dataframe(test_data)
 
-    st.subheader("Test Dataset")
+    # st.subheader("Test Dataset")
     test_data = data_preprocess(test_data, mode='Test', training_dataframe=training_dataframe)
-    st.dataframe(test_data)
+    # st.dataframe(test_data)
 
     standardizier = preprocessing.StandardScaler()  # Call a standardization object
     x_train = standardizier.fit_transform(train_data)  # Do the standardization
