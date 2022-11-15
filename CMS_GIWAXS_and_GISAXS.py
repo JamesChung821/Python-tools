@@ -78,7 +78,7 @@ def main():
 
 def giwaxs(files):
     q_and_I_list = sorted_data(files, mode=ANGLE_RANGE)
-    background_subtraction(q_and_I_list, degree=5)   # Add a new list with background subtraction
+    # background_subtraction(q_and_I_list, degree=5)   # Add a new list with background subtraction
     giwaxs_plot(q_and_I_list)
     # giwaxs_plot(q_and_I_list, mode='bg_sub')
 
@@ -130,6 +130,7 @@ def background_subtraction(q_and_I_list, degree=3):
         x = q_and_I_list['q_list'][index]
         y = q_and_I_list['I_list'][index]
         filename = q_and_I_list['filename_list'][index]
+        print(index, filename)
         # pos = filename[filename.find('pos'):filename.find('pos') + 4]
         base_line = peakutils.baseline(y, degree)  # generate baseline
         y_corrected = y - base_line  # subtract baseline from y-values
