@@ -22,8 +22,8 @@ from scipy import stats
 
 INPUT_PATH = r"D:\Research data\SSID\202210\20221003 CMS b32\saxs\analysis\qz=0.07_dq=0.02"
 CONFIG_FILE = r"D:\Research data\SSID\202210\20221003 CMS b32\saxs\analysis\CMS_plot_config_gisaxs_b32_0.2_G.ini"
-INPUT_PATH = r"D:\Research data\SSID\202211\20221114 CMS battery\analysis\circular_average"
-CONFIG_FILE = r"D:\Research data\SSID\202211\20221114 CMS laser heating and battery\waxs\analysis\CMS_plot_battery_config.ini"
+INPUT_PATH = r"D:\Research data\SSID\202211\20221115 CMS SSMD with CeO2 calibration in WAXS\waxs\analysis\circular_average\b31-07_NbAl_SiO2Si"
+CONFIG_FILE = r"D:\Research data\SSID\202211\20221115 CMS SSMD with CeO2 calibration in WAXS\waxs\analysis\CMS_plot_config_26095704520126155180205230.ini"
 CONFIG = configparser.ConfigParser()
 
 if Path(CONFIG_FILE).is_file():
@@ -91,19 +91,19 @@ def gisaxs(files):
 def sorted_data(files, mode=ANGLE_RANGE):
     data_dict = {'q_list': {}, 'I_list': {},'filename_list': {}, 'background_subtraction_list': {}}   # Create a dictionary to store all information
     for index, file in enumerate(files):
-        waxs_data = file.resolve()  # Make the path absolute, resolving any symlinks
-        data_dict['filename_list'][index] = waxs_data.name
-        print(index, waxs_data.name)
+        scattering_data = file.resolve()  # Make the path absolute, resolving any symlinks
+        data_dict['filename_list'][index] = scattering_data.name
+        print(index, scattering_data.name)
         if mode == 'wide':
-            dataframe = pd.read_table(waxs_data, sep="\s+",
+            dataframe = pd.read_table(scattering_data, sep="\s+",
                                       usecols=['#', 'q', 'qerr', 'I(q)'])\
                 .to_numpy()  # '#' is q column and 'qerr' is I(q) column
             data_dict['q_list'][index] = dataframe[:, 0]
             data_dict['I_list'][index] = dataframe[:, 2]
             if OUTPUT_FOR_JADE:
-                    out_file(dataframe[:, 0], dataframe[:, 2], f'Converted_{waxs_data.name}')
+                    out_file(dataframe[:, 0], dataframe[:, 2], f'Converted_{scattering_data.name}')
         elif mode == 'small':
-            dataframe = pd.read_table(waxs_data, sep="\s+",
+            dataframe = pd.read_table(scattering_data, sep="\s+",
                                       usecols=['#', 'qr', 'I']) \
                 .to_numpy()  # '#' is q column and 'qerr' is I(q) column
 
@@ -418,7 +418,8 @@ def out_file(tth, intensity, filename):
     :return: None
     """
     print('=================================================================================')
-    short_filename = filename[:filename.find('_pos1')] + '-' + filename[filename.find('th'):filename.find('th')+6]
+    short_filename = filename[:filename.find('_pos1')] + '-xposi' + filename[filename.find("_x") + 2:filename.find(
+        "_x") + 6] + '-' + filename[filename.find('th'):filename.find('th') + 6]
     print(f'Converting CMS GIWAXS data to --> {short_filename}')
     filename = os.path.join(INPUT_PATH+'/', short_filename + '.xy')
     with open(filename, 'w') as out:
