@@ -22,8 +22,8 @@ from scipy import stats
 
 INPUT_PATH = r"D:\Research data\SSID\202210\20221003 CMS b32\saxs\analysis\qz=0.07_dq=0.02"
 CONFIG_FILE = r"D:\Research data\SSID\202210\20221003 CMS b32\saxs\analysis\CMS_plot_config_gisaxs_b32_0.2_G.ini"
-INPUT_PATH = r"D:\Research data\SSID\202211\20221115 CMS SSMD with CeO2 calibration in WAXS\waxs\analysis\circular_average\b31-07_NbAl_SiO2Si"
-CONFIG_FILE = r"D:\Research data\SSID\202211\20221115 CMS SSMD with CeO2 calibration in WAXS\waxs\analysis\CMS_plot_config_26095704520126155180205230.ini"
+INPUT_PATH = r"D:\Research data\SSID\202212\20221207 CMS SSMD comparison\b28-34_ScNbAl_SiO2Si_laserAF_pos1_x2.000"
+CONFIG_FILE = r"D:\Research data\SSID\202212\20221207 CMS SSMD comparison\b28-34_ScNbAl_SiO2Si_laserAF_pos1_x2.000\CMS_plot_config_b28-34_ScNbAl_SiO2Si_laserAF_pos1_x2.000.ini"
 CONFIG = configparser.ConfigParser()
 
 if Path(CONFIG_FILE).is_file():
@@ -167,7 +167,7 @@ def giwaxs_plot(q_and_I_list, mode='raw'):
         if len(SAMPLE_LABEL) == 0:
             plot_label = f"{batch_number}/{composition}/{condition}/{incident_angle}"
         else:
-            plot_label = SAMPLE_LABEL[SAMPLE_LIST.index(index)]
+            plot_label = SAMPLE_LABEL[SAMPLE_LIST.index(index)] if len(SAMPLE_LABEL) == len(SAMPLE_LIST) else filename
 
         # Title
         if TITLE != 'Auto':
@@ -203,7 +203,7 @@ def giwaxs_plot(q_and_I_list, mode='raw'):
     plt.xlim(q_and_I_list['q_list'][SAMPLE_LIST[0]].min(), q_and_I_list['q_list'][SAMPLE_LIST[0]].max())
     plt.ylim(y_min_lim-50, y_max_lim+200)
     plt.legend(loc='upper left', framealpha=1, frameon=False, fontsize=12)
-    plt.title(title, fontsize=18, pad=10)
+    plt.title(title, fontsize=18, pad=15)
     plt.tight_layout()
     if IF_SAVE:
         output_filename = check_filename_repetition(title)
