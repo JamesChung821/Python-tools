@@ -74,9 +74,10 @@ def main():
 
     location_coordinate = [0, 0]
     restaurant_selection = "We're sorry for not finding any restaurant for you."
-    restaurant_selection, index_in_raw_dataset_list = kmeans_fit(visualizer, x_train_pca, x_test_pca, label_data,
+    # restaurant_selection, index_in_raw_dataset_list = kmeans_fit(visualizer, x_train_pca, x_test_pca, label_data,
+    #                                                              restaurant_selection)
+    restaurant_selection, index_in_raw_dataset_list = density_based(visualizer, x_train_pca, x_test_pca, label_data,
                                                                  restaurant_selection)
-
     st.subheader('The Best Restaurant for you')
     location_coordinate = restaurant_fit(restaurant_selection, location_coordinate)
 
@@ -106,53 +107,6 @@ def main():
     # this button is not connected to any other logic, it just causes a plain
     # rerun.
     st.button("Re-run")
-
-
-def bar_chart():
-    fig, ax = plt.subplots()
-    colors = ["#69b3a2", "#4374B3"]
-    # sns.set_palette(sns.color_palette(colors))
-
-    samples = ['NbAl\npristine', 'Sc/NbAl\npristine', 'Sc/NbAl\n900C60M', 'Sc/NbAl\n1100C60M']
-    element_A_at = [53.00, 51.23, 50.95, 50.52]
-    elememt_B_at = [47.00, 48.77, 49.05, 49.48]
-
-    x = np.arange(len(samples))
-    bar_width = 0.4
-    color_idx = np.linspace(0, 1, len(samples))
-
-    # Plotting
-    bar_A = plt.bar(x, element_A_at, bar_width, color=CMAP(color_idx[0]), label='Nb', edgecolor='white')
-    bar_B = plt.bar(x + bar_width, elememt_B_at, bar_width, color=CMAP(color_idx[1]), label='Al', edgecolor='white')
-
-    # Texts
-    for index, bar in enumerate(bar_A):
-        height_A = bar.get_height()
-        height_B = 100 - height_A
-
-        ax.text(bar.get_x() + bar.get_width() / 2, 1.05 * height_A,
-                f'{element_A_at[index]}',
-                ha='center', va='bottom', rotation=0, fontsize=12)
-        ax.text(bar.get_x() + bar.get_width() / 2 + bar_width, 1.05 * height_B,
-                f'{elememt_B_at[index]}',
-                ha='center', va='bottom', rotation=0, fontsize=12)
-
-    # Frame linewidth
-    spineline = ['left', 'right', 'top', 'bottom']
-    for direction in spineline:
-        ax.spines[direction].set_linewidth('2')
-
-    # Formatting
-    plt.yticks(fontsize=14)
-    ax.tick_params(width=2)
-    plt.xticks(x + bar_width / 2, samples, fontsize=14)
-    plt.ylabel('Atomic percentage', fontsize=14)
-    plt.ylim(0, 80)
-    plt.title('')
-    plt.legend(fontsize=14)
-    plt.tight_layout()
-    # plt.show()
-    st.pyplot(fig)
 
 
 def synthetic_dataset():
@@ -355,6 +309,60 @@ def kmeans_fit(visualizer, x_train_pca, x_test_pca, label_data, restaurant_selec
     for index, index_in_raw_dataset in enumerate(train_cluster):
         index_in_raw_dataset_list.append(train_cluster[index][0])
     print(index_in_raw_dataset_list)
+
+    return restaurant_selection, index_in_raw_dataset_list
+
+
+def density_based(visualizer, x_train_pca, x_test_pca, label_data, restaurant_selection):
+    clustering = cluster.DBSCAN(eps=3, min_samples=2)  # <------------------------------- number of clusters
+    clustering.fit(x_train_pca)  # No labels
+    # print('Cluster center data:', k_means.cluster_centers_)
+    print('====================================')
+    print('Cluster label')
+    print(clustering.labels_)
+    print('core indices')
+    print(clustering.core_sample_indices_)
+    print('components')
+    print(clustering.components_)
+    print('n feature')
+    print(clustering.n_features_in_)
+    print('feature name')
+    print(clustering.feature_names_in_)
+    # print(k_means.get_params())
+    # print(k_means.inertia_)
+
+    # predict_label = clustering.predict(x_test_pca)
+    # print('====================================')
+    # print('Predict label')
+    # print(predict_label)
+    # print('Data format of each data')
+    # print(x_test_pca[0])
+
+    train_dict = defaultdict(list)
+    for index, cluster_label in enumerate(clustering.labels_):
+        train_dict[f'{cluster_label}'].append((index, x_train_pca[index]))
+
+    # train_cluster = []
+    # for index, test_label in enumerate(predict_label):
+    #     distance_array = np.array([])
+    #     for train_data_point in train_dict[f'{test_label}']:
+    #         distance = train_data_point[1] - x_test_pca[index]
+    #         norm = np.linalg.norm(distance)
+    #         distance_array = np.append(distance_array, norm)
+    #     print('====================================')
+    #     print(f'Predict data {index} is in Group {test_label}')
+    #     print('Best data point:', (distance_array.argmin(), np.min(distance_array)))
+    #     train_cluster = train_dict[f'{test_label}']
+    #     index_in_cluster = distance_array.argmin()
+    #     print(train_cluster[index_in_cluster])
+    #     index_in_label = train_cluster[index_in_cluster][0]
+    #     print(label_data[index_in_label])
+    #     restaurant_selection = label_data[index_in_label]
+    #
+    # index_in_raw_dataset_list = []
+    # for index, index_in_raw_dataset in enumerate(train_cluster):
+    #     index_in_raw_dataset_list.append(train_cluster[index][0])
+    # print(index_in_raw_dataset_list)
 
     return restaurant_selection, index_in_raw_dataset_list
 
