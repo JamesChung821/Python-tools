@@ -112,9 +112,9 @@ output_filename = 'Sc-b33-NbAlSc-SP'
 ### Usage
 
 ---
-#### Step 1: Paste your data directory
+* Paste your data directory
 
-#### Step 2: Set up your plotting parameters
+* Set up your plotting parameters
 
 ## plot xrd SSID insitu.py
 <p align="center">
@@ -152,16 +152,16 @@ SAVE_IMG = False
 
 ## CMS GIWAXS and GISAXS.py
 ### Usage
-#### Step 1: Download **CMS_plot_config.ini**
-#### Step 2: Paste your data directory in the **CMS_GIWAXS_and_GISAXS.py**
+* Download **CMS_plot_config.ini**
+* Paste your data directory in the **CMS_GIWAXS_and_GISAXS.py**
 ```
 INPUT_PATH = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\analysis\qz=0.07_dq=0.02_b33"
 ```
-#### Step 3: Paste your **CMS_plot_config.ini** absolute directory
+* Paste your **CMS_plot_config.ini** absolute directory
 ```
 CONFIG_FILE = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\b33-NbAlSc-SP-th0.2_CMS_plot_config.ini"
 ```
-#### Step 4: Update the config file for your data plot
+* Update the config file for your data plot
 The key paramteres:
 ```
 sample_list = [0]
