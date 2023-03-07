@@ -100,7 +100,9 @@ SHOW_DATA_INFORMATION = False
 ```
 CONFIG_FILE = r"D:\Research data\SSID\202205\20220509 20210221 BMM\b28_Sc_pure_config.ini"
 ```
-* Update the config file. The key parameters:
+* Update the config file. 
+
+The key parameters:
 ```
 sample_list = [0, 1]
 standard_list = [1]
@@ -161,7 +163,8 @@ INPUT_PATH = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\analysis\qz
 ```
 CONFIG_FILE = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\b33-NbAlSc-SP-th0.2_CMS_plot_config.ini"
 ```
-* Update the config file for your data plot
+* Update the config file for your data plot.
+
 The key paramteres:
 ```
 sample_list = [0]
