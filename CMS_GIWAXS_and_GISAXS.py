@@ -19,15 +19,15 @@ import os
 import configparser
 import palettable as pltt
 import peakutils
-from scipy import stats
+
 # Step 1: Give your data directory
 # GISAXS
-INPUT_PATH = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\analysis\qz=0.07_dq=0.02_b33"
-CONFIG_FILE = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\b33-NbAlSc-SP-th0.2_CMS_plot_config.ini"
+# INPUT_PATH = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\analysis\qz=0.07_dq=0.02_b33"
+# CONFIG_FILE = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\saxs\b34-MoTiCu-SiO2Si-th0.2_CMS_plot_config.ini"
 
 # GIWAXS
-# INPUT_PATH = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\waxs\analysis\circular_average"
-# CONFIG_FILE = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\waxs\b34-MoTiCu-SiO2Si-th0.2_CMS_plot_config.ini"
+INPUT_PATH = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\waxs\analysis\circular_average"
+CONFIG_FILE = r"D:\Research data\SSID\202302\20230228 CMS b33 SP\waxs\b33-NbAl and Sc-SP-th0.2_CMS_plot_config.ini"
 
 # Step 2: Confirm your config file
 CONFIG = configparser.ConfigParser()
@@ -46,7 +46,8 @@ FILE_TYPE = '.dat'
 ANGLE_RANGE = eval(CONFIG['samples']['angle_range'])
 SAMPLE_LIST = eval(CONFIG['samples']['sample_list'])
 SAXS_COLUMN_NAME = ['#', 'qr', 'I']                                                                  # May be updated
-WAXS_COLUMN_NAME = ['#', 'q', 'I(q)err', 'q']                                                        # May be updated
+WAXS_COLUMN_NAME = ['#', 'q', 'I(q)err', 'q']                                                        # May be updated, then update: data_dict['I_list'][index] = dataframe[:, 1]
+# WAXS_COLUMN_NAME = ['#', 'q', 'qerr', 'I(q)']                                                      # Before 2023
 FIGURE_SIZE = eval(CONFIG['format']['figure_size'])
 BATCH_NUMBER, COMPOSITION, CONDITION, INCIDENT_ANGLE = eval(CONFIG['legends']['sample_condition'])   # Whether you want to show them in the legend
 PALETTE = eval(CONFIG['format']['palette'])                                                          # pld.Spectral_4_r  # _r if you want to reverse the color sequence
