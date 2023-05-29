@@ -74,10 +74,10 @@ def main():
 
     location_coordinate = [0, 0]
     restaurant_selection = "We're sorry for not finding any restaurant for you."
-    # restaurant_selection, index_in_raw_dataset_list = kmeans_fit(visualizer, x_train_pca, x_test_pca, label_data,
-    #                                                              restaurant_selection)
-    restaurant_selection, index_in_raw_dataset_list = density_based(visualizer, x_train_pca, x_test_pca, label_data,
+    restaurant_selection, index_in_raw_dataset_list = kmeans_fit(visualizer, x_train_pca, x_test_pca, label_data,
                                                                  restaurant_selection)
+    # restaurant_selection, index_in_raw_dataset_list = density_based(visualizer, x_train_pca, x_test_pca, label_data,
+    #                                                              restaurant_selection)
     st.subheader('The Best Restaurant for you')
     location_coordinate = restaurant_fit(restaurant_selection, location_coordinate)
 
@@ -314,7 +314,7 @@ def kmeans_fit(visualizer, x_train_pca, x_test_pca, label_data, restaurant_selec
 
 
 def density_based(visualizer, x_train_pca, x_test_pca, label_data, restaurant_selection):
-    clustering = cluster.DBSCAN(eps=3, min_samples=2)  # <------------------------------- number of clusters
+    clustering = cluster.DBSCAN(eps=3, min_samples=2)  # <------------------------------- number of clusters # DBSCAN
     clustering.fit(x_train_pca)  # No labels
     # print('Cluster center data:', k_means.cluster_centers_)
     print('====================================')
@@ -326,8 +326,8 @@ def density_based(visualizer, x_train_pca, x_test_pca, label_data, restaurant_se
     print(clustering.components_)
     print('n feature')
     print(clustering.n_features_in_)
-    print('feature name')
-    print(clustering.feature_names_in_)
+    # print('feature name')
+    # print(clustering.feature_names_in_)
     # print(k_means.get_params())
     # print(k_means.inertia_)
 
