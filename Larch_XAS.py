@@ -35,9 +35,9 @@ TRANSMISSION_MODE instructions:
 Otherwise True or False to decide what type of data you want to export (transmission or fluorescence scans)
 True for transmission scans; False for fluorescence scans
 """
-FILE_TYPE = '.prj'   # <------------------------------------------------------------------------------------- data type
+FILE_TYPE = '.txt'   # <------------------------------------------------------------------------------------- data type
 TRANSMISSION_MODE = 'Auto'
-INPUT_PATH = r'D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Sc\Square'    # <----------------------- Data folder input
+INPUT_PATH = r'D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Ti\Stripe\Output_files'    # <----------------------- Data folder input
 OUTPUT_PATH = Path(f'{INPUT_PATH}\Output_files')
 
 # Merged Constant
@@ -51,7 +51,7 @@ SHOW_DATA_INFORMATION = False   # List athena parameters, such as atomic symbol,
 You could set FILE_INDEX = 0, SAMPLE_LIST = [], STANDARD_LIST = [], 
 SAMPLE_LABEL = [], ENERGY_RANGE = () as a default for your first try.
 """
-CONFIG_FILE = r"D:\Research data\SSID\202305\20230525 BMM SSID wo Si\Output_files\b36_Nb for time request.ini"   # <-------------------- .ini setting for plotting
+CONFIG_FILE = r"D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Ti\Stripe\Output_files\b38_MoTiCu-Ti.ini"   # <-------------------- .ini setting for plotting
 
 config = configparser.ConfigParser()
 if Path(CONFIG_FILE).is_file():
@@ -184,7 +184,9 @@ def plot_xas(files):
         plt.xticks(np.arange(ENERGY_RANGE[0], ENERGY_RANGE[1], step=ENERGY_INTERVAL), fontsize=14)
     if Y_RANGE != ():
         ax1.set_ylim(Y_RANGE)
-    plt.title(OUTPUT_FILENAME, fontsize=20, pad=15)
+    plt.title(OUTPUT_FILENAME, fontsize=20, pad=15) \
+        if OUTPUT_FILENAME != "" \
+        else plt.title(PureWindowsPath(CONFIG_FILE).stem, fontsize=20, pad=15)
     x_label = r'$\mathregular{Energy\ (eV)}$'
     y_label = r'$\mathregular{Normalized\ x\mu(E)}$'
     plt.yticks([])  # Disable ticks
@@ -192,11 +194,13 @@ def plot_xas(files):
     ax1.set_xlabel(x_label, fontsize=18)
     ax1.set_ylabel(y_label, fontsize=18)
     # plt.rcParams["axes.linewidth"] = 5
-    plt.legend(loc='lower right', framealpha=1, frameon=False, fontsize=14, ncol=NUM_COLUMN)
+    plt.legend(loc='lower right', framealpha=1, frameon=False, fontsize=14, ncol=NUM_COLUMN, reverse=True)
     plt.tight_layout()
     if IF_SAVE:
         config_file_location = PureWindowsPath(CONFIG_FILE).parent
-        output_filename = check_filename_repetition(OUTPUT_FILENAME, config_file_location)
+        output_filename = check_filename_repetition(OUTPUT_FILENAME, config_file_location) \
+            if OUTPUT_FILENAME != "" \
+            else check_filename_repetition(PureWindowsPath(CONFIG_FILE).stem, config_file_location)
         plt.savefig("{}/{}.png".format(Path(config_file_location), output_filename), dpi=300, transparent=False)
     plt.show()
 
@@ -562,7 +566,7 @@ def calibrate_energy(files):
                 # print('Energy after:', data.energy[0])
                 print('Energy E0 after:', find_e0(data.energy, mu=data.mu, group=data))
                 reference_checklist.append(reference_name)
-                if energy_shift > 10:
+                if np.abs(energy_shift) > 10:
                     print('-'*50 + '> ' + 'Energy shift is too large, please check the reference. '
                                           'Otherwise, please use Created_group.prj to do the calibration manually.')
                 print('')
