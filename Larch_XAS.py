@@ -37,21 +37,21 @@ True for transmission scans; False for fluorescence scans
 """
 FILE_TYPE = '.txt'   # <------------------------------------------------------------------------------------- data type
 TRANSMISSION_MODE = 'Auto'
-INPUT_PATH = r'D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Ti\Stripe\Output_files'    # <----------------------- Data folder input
+INPUT_PATH = r"D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Ti\Stripe\Single Scan\Output_files"    # <----------------------- Data folder input
 OUTPUT_PATH = Path(f'{INPUT_PATH}\Output_files')
 
 # Merged Constant
-SKIP_SCANS = ['Nb_b47_01_NbAlSc_SP_Pristine_003']     # [] if scans are good or just add scans you want to exclude
-IF_NOR = False   # Do normalization for fluorescence scans
-ADD_DEV = False     # Add plus and minus standard deviation lines for fluorescence scansㄦ
-SHOW_DATA_INFORMATION = False   # List athena parameters, such as atomic symbol, edge, label, etc.
+SKIP_SCANS = ['Nb_b47_01_NbAlSc_SP_Pristine_003']  # [] if scans are good or just add scans you want to exclude
+IF_NOR = False                                     # Do normalization for fluorescence scans
+ADD_DEV = False                                    # Add plus and minus standard deviation lines for fluorescence scans
+SHOW_DATA_INFORMATION = False                      # List athena parameters, such as atomic symbol, edge, label, etc.
 
 # Plot Constant for .txt
 """
 You could set FILE_INDEX = 0, SAMPLE_LIST = [], STANDARD_LIST = [], 
 SAMPLE_LABEL = [], ENERGY_RANGE = () as a default for your first try.
 """
-CONFIG_FILE = r"D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Ti\Stripe\Output_files\b38_MoTiCu-Ti.ini"   # <-------------------- .ini setting for plotting
+CONFIG_FILE = r"D:\Research data\SSID\202310\20231029 b3x4xGx BMM\Ti\Stripe\Single Scan\Output_files\Ti-G4-01-VTiCu.ini"   # <-------------------- .ini setting for plotting
 
 config = configparser.ConfigParser()
 if Path(CONFIG_FILE).is_file():
@@ -66,23 +66,23 @@ else:
     print("Manually input so please remove all eval commands if error occurs or file is not found")
     print("-----------------")
 
-FILE_INDEX = config.getint('samples', 'file_index') if is_ini else 0                                      # Which file in the file list you want to plot
+FILE_INDEX = config.getint('samples', 'file_index') if is_ini else 0                         # Which file in the file list you want to plot
 SAMPLE_LIST = eval(config['samples']['sample_list']) if is_ini else []                                    # [] for default or [1, 7, 5, 3] for a index list you want to plot
 STANDARD_LIST = eval(config['samples']['standard_list']) if is_ini else []                                # [] if none or [5, 3] in the SAMPLE_LIST become dash lines
 SAMPLE_LABEL = eval(config['legends']['sample_label']) if is_ini else []                                  # [] for default or add a specific name list
 FIGURE_SIZE = eval(config['format']['figure_size']) if is_ini else (6.4, 4.8)                             # Cheng-Hung uses (6, 7.5), but the default is (6.4, 4.8)
 PALETTE = eval(config['format']['palette']) if is_ini else pltt.colorbrewer.diverging.Spectral_4_r        # pld.Spectral_4_r  # _r if you want to reverse the color sequence
 CMAP = PALETTE.mpl_colormap                                                                               # .mpl_colormap attribute is a continuous, interpolated map
-LINEWIDTH = eval(config['format']['linewidth']) if is_ini else 2
-FRAMELINEWIDTH = eval(config['format']['framelinewidth']) if is_ini else 2
+LINEWIDTH = eval(config['format']['linewidth']) if is_ini else 2                                          # Line width
+FRAMELINEWIDTH = eval(config['format']['framelinewidth']) if is_ini else 2                                # Frame line width
 COLOR_INCREMENT = eval(config['format']['color_increment']) if is_ini else 0
 OFFSET = eval(config['format']['offset']) if is_ini else 0                                                # Value you want to add to an y offset for each curve.
 ENERGY_RANGE = eval(config['format']['energy_range']) if is_ini else ()                                   # () for default, (18900, 19150) for Nb, (4425, 4625) for Sc
 Y_RANGE = eval(config['format']['y_range']) if is_ini else ()                                             # () for default
 ENERGY_INTERVAL = eval(config['format']['energy_interval']) if is_ini else 0                              # This parameter works only when you set a ENERGY_RANGE
-IF_SAVE = eval(config['format']['if_save']) if is_ini else True
+IF_SAVE = eval(config['format']['if_save']) if is_ini else True                                           # Save the plot or not
 OUTPUT_FILENAME = eval(config['format']['output_filename']) if is_ini else "Default"
-NUM_COLUMN = 1
+NUM_COLUMN = 2                                                                                            # Number of columns in the legend
 
 
 def main():
@@ -125,7 +125,7 @@ def plot_xas(files):
         print(index, file)
 
     print("\n==============================")
-    print(f'Data column in file number {FILE_INDEX}')
+    print(f'Data column in file number {FILE_INDEX} ---> {f_list[FILE_INDEX].name}')
     print("------------------------------")
     file = read_ascii(f_list[FILE_INDEX])
     file_keys = file.__dir__()  # Make a list
@@ -189,7 +189,7 @@ def plot_xas(files):
         else plt.title(PureWindowsPath(CONFIG_FILE).stem, fontsize=20, pad=15)
     x_label = r'$\mathregular{Energy\ (eV)}$'
     y_label = r'$\mathregular{Normalized\ x\mu(E)}$'
-    plt.yticks([])  # Disable ticks
+    # plt.yticks([])  # Disable ticks
     ax1.tick_params(width=FRAMELINEWIDTH)
     ax1.set_xlabel(x_label, fontsize=18)
     ax1.set_ylabel(y_label, fontsize=18)
@@ -197,6 +197,7 @@ def plot_xas(files):
     plt.legend(loc='lower right', framealpha=1, frameon=False, fontsize=14, ncol=NUM_COLUMN, reverse=True)
     plt.tight_layout()
     if IF_SAVE:
+        plt.yticks([])  # Disable ticks
         config_file_location = PureWindowsPath(CONFIG_FILE).parent
         output_filename = check_filename_repetition(OUTPUT_FILENAME, config_file_location) \
             if OUTPUT_FILENAME != "" \
@@ -566,8 +567,8 @@ def calibrate_energy(files):
                 # print('Energy after:', data.energy[0])
                 print('Energy E0 after:', find_e0(data.energy, mu=data.mu, group=data))
                 reference_checklist.append(reference_name)
-                if np.abs(energy_shift) > 10:
-                    print('-'*50 + '> ' + 'Energy shift is too large, please check the reference. '
+                if np.abs(energy_shift) > 5:
+                    print('WARNING: Energy shift is too large, please check the reference. '
                                           'Otherwise, please use Created_group.prj to do the calibration manually.')
                 print('')
 
