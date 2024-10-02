@@ -30,12 +30,12 @@ print("After, Backend used by matplotlib is: ", matplotlib.get_backend())
 # CONFIG_FILE = r"D:\Research data\SSID\202403\20240311 CMS b45 NbAlCu\saxs\analysis\b45-05_NbAlCu__0.055_0.008\Plot\b45-05_NbAlCu_th025_17613.ini"
 
 # GIWAXS
-INPUT_PATH = r"D:\Research data\SSID\202405\20240530 CMS AE\PTA\Exp1\maxs\analysis\circular_average"
-CONFIG_FILE = r"D:\Research data\SSID\202405\20240530 CMS AE\PTA\Exp1\maxs\analysis\b53-01_CuNbAlCu_postscan_x126p4\b53-01_CuNbAlCu_postscan.ini"
+INPUT_PATH = r"D:\Research data\SSID\202409\20240927 CMS b5455 sandwich test\waxs\analysis\circular_average"
+CONFIG_FILE = r"D:\Research data\SSID\202409\20240927 CMS b5455 sandwich test\waxs\analysis\b54-01 ScVMnSc\b54-01_ScVMnSc_EXPTA30M.ini"
 
 # OUTPUT_PATH = Path(f'{INPUT_PATH}\Output_files')
 # Save with config file
-OUTPUT_PATH = Path(f'{PureWindowsPath(CONFIG_FILE).parent}\Output_files')
+OUTPUT_PATH = Path(f'{PureWindowsPath(CONFIG_FILE).parent}\Output_files_{PureWindowsPath(CONFIG_FILE).stem}')
 
 # Step 2: Confirm your config file
 CONFIG = configparser.ConfigParser()
