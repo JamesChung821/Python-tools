@@ -26,12 +26,12 @@ print("After, Backend used by matplotlib is: ", matplotlib.get_backend())
 
 # Step 1: Give your data directory
 # GISAXS
-# INPUT_PATH = r"D:\Research data\SSID\202403\20240311 CMS b45 NbAlCu\saxs\analysis\b45-05_NbAlCu__0.055_0.008"
-# CONFIG_FILE = r"D:\Research data\SSID\202403\20240311 CMS b45 NbAlCu\saxs\analysis\b45-05_NbAlCu__0.055_0.008\Plot\b45-05_NbAlCu_th025_17613.ini"
+# INPUT_PATH = r"D:\Research data\SSID\202411\20241104 CMS AE\saxs\analysis\b59-03-CrCuNiCr-AE_Tc"
+# CONFIG_FILE = r"D:\Research data\SSID\202411\20241104 CMS AE\saxs\analysis\b59-03-CrCuNiCr-AE_Tc\Plot\b59-03-CrCuNiCr-AE.ini"
 
 # GIWAXS
-INPUT_PATH = r"D:\Research data\SSID\202409\20240927 CMS b5455 sandwich test\waxs\analysis\circular_average"
-CONFIG_FILE = r"D:\Research data\SSID\202409\20240927 CMS b5455 sandwich test\waxs\analysis\b54-01 ScVMnSc\b54-01_ScVMnSc_EXPTA30M.ini"
+INPUT_PATH = r"D:\Research data\SSID\202411\20241104 CMS AE\maxs\analysis\b59-03-CrCuNiCr-AE_afterAE\circular_average"
+CONFIG_FILE = r"D:\Research data\SSID\202411\20241104 CMS AE\maxs\analysis\b59-03-CrCuNiCr-AE_afterAE\b59-03-CrCuNiCr_afterAE.ini"
 
 # OUTPUT_PATH = Path(f'{INPUT_PATH}\Output_files')
 # Save with config file
@@ -61,7 +61,8 @@ LEGEND_TAIL_KEYWORD = '0_10'
 ANGLE_RANGE = eval(CONFIG['samples']['angle_range'])
 SAMPLE_LIST = eval(CONFIG['samples']['sample_list'])
 SAXS_COLUMN_NAME = ['#', 'qr', 'I']                                                                  # May be updated
-WAXS_COLUMN_NAME = ['#', 'q', 'I(q)err', 'q']                                                        # May be updated, then update: data_dict['I_list'][index] = dataframe[:, 1]
+WAXS_COLUMN_NAME = ['#', 'q', 'qerr', 'I(q)']                                                        # 2024-3 update to data_dict['I_list'][index] = dataframe[:, 2]
+# WAXS_COLUMN_NAME = ['#', 'q', 'I(q)err', 'q']                                                      # May be updated, then update: data_dict['I_list'][index] = dataframe[:, 1]
 # WAXS_COLUMN_NAME = ['#', 'q', 'qerr', 'I(q)']                                                      # Before 2023
 DIOPTAS_COLUMN_NAME = ['#', 'q_A^-1', 'I']
 FIGURE_SIZE = eval(CONFIG['format']['figure_size'])
@@ -110,9 +111,9 @@ def main():
 
 def giwaxs(files):
     q_and_I_list = sorted_data(files, mode=ANGLE_RANGE)
-    # background_subtraction(q_and_I_list, degree=5)   # Add a new list with background subtraction
-    giwaxs_plot(q_and_I_list)
-    # giwaxs_plot(q_and_I_list, mode='bg_sub')
+    background_subtraction(q_and_I_list, degree=5)   # Add a new list with background subtraction
+    # giwaxs_plot(q_and_I_list)
+    giwaxs_plot(q_and_I_list, mode='bg_sub')
 
 
 def gisaxs(files):
@@ -136,9 +137,9 @@ def sorted_data(files, mode=ANGLE_RANGE):
                                       usecols=WAXS_COLUMN_NAME).to_numpy() \
                 if scattering_data.suffix == ".dat" \
                 else pd.read_table(scattering_data, sep="\s+", usecols=DIOPTAS_COLUMN_NAME, skiprows=22).to_numpy() \
-                # '#' is q column and 'q' is I(q) column
+                # '#' is q column and 'qerr' is I(q) column
             data_dict['q_list'][index] = dataframe[:, 0]
-            data_dict['I_list'][index] = dataframe[:, 1]
+            data_dict['I_list'][index] = dataframe[:, 2]
             if OUTPUT_FOR_JADE:
                     out_file(data_dict['q_list'][index], data_dict['I_list'][index], f'C_{scattering_data.name}')
         elif mode == 'small':
@@ -515,7 +516,7 @@ def out_file(q, intensity, filename):
     print('=================================================================================')
     # short_filename = filename[:filename.find('_pos1')] + '-xposi' + filename[filename.find("_x") + 2:filename.find(
     #     "_x") + 6] + '-' + filename[filename.find('th'):filename.find('th') + 6] + '.xy'
-    short_filename = filename[:filename.find(FILENAME_KEYWORD)+FILENAME_KEYWORD_OFFSET] + '.xy'   # <--- Modify this line to change the output filename
+    short_filename = filename[:filename.find(FILENAME_KEYWORD)+FILENAME_KEYWORD_OFFSET] + '_q' + '.xy'   # <--- Modify this line to change the output filename
     print(f'Converting CMS GIWAXS data to --> {short_filename}')
     output_filename = OUTPUT_PATH / short_filename
     with open(output_filename, 'w') as out:
